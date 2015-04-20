@@ -8,8 +8,6 @@
 
 'use strict'
 
-var chalk = require('chalk')
-
 var formatter = require('../lib/formatter').formatFile
 var reporter = require('../lib/reporter').reporter
 var lintFiles = require('../lib/linter').lintFiles
@@ -26,16 +24,16 @@ module.exports = function (grunt) {
       lint: true
     })
     if (options.format) {
-      grunt.log.writeln(chalk.bold('Formatting files...'))
+      grunt.log.subhead('Formatting files...')
       this.filesSrc.forEach(function (file) {
         formatter(grunt, file)
       })
     }
 
     if (options.lint) {
-      grunt.log.writeln(chalk.bold('Linting files...'))
+      grunt.log.subhead('Linting files...')
       lintFiles(this.filesSrc).then(function (data) {
-        var results = reporter(data)
+        var results = reporter(grunt, data)
         var hasErrors = results.total === 0
         grunt.log.writeln(results.output)
         done(hasErrors)

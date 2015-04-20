@@ -14,7 +14,7 @@ module.exports = function (grunt) {
     // Configuration to be run (and then tested).
     standard: {
       options: {
-        format: true
+        format: false
       },
       app: {
         src: [
