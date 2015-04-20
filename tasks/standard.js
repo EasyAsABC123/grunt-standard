@@ -23,6 +23,7 @@ module.exports = function (grunt) {
       format: false,
       lint: true
     })
+
     if (options.format) {
       grunt.log.subhead('Formatting files...')
       this.filesSrc.forEach(function (file) {
@@ -33,10 +34,8 @@ module.exports = function (grunt) {
     if (options.lint) {
       grunt.log.subhead('Linting files...')
       lintFiles(this.filesSrc).then(function (data) {
-        var results = reporter(grunt, data)
-        var hasErrors = results.total === 0
-        grunt.log.writeln(results.output)
-        done(hasErrors)
+        var success = reporter(grunt, data)
+        done(success)
       }).catch(function (err) {
         grunt.fail.fatal(err.toString())
         done(false)
