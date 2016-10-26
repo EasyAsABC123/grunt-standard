@@ -9,8 +9,6 @@
 'use strict'
 
 module.exports = function (grunt) {
-  grunt.loadNpmTasks('grunt-nsp-shrinkwrap')
-
   // Project configuration.
   grunt.initConfig({
     // Configuration to be run (and then tested).
