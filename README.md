@@ -8,10 +8,16 @@
 
 ## Install
 
-The following shell command will install `grunt-standard` to your project's `package.json` in `devDependencies`.
+The following shell commands will install `grunt-standard` to your project's `package.json` in `devDependencies`.
 
+### npm
 ```shell
-npm install grunt-standard --save-dev
+npm install @4cm4k1/grunt-standard --save-dev
+```
+
+### Yarn
+```shell
+yarn add @4cm4k1/grunt-standard --dev
 ```
 
 ### Assumptions
