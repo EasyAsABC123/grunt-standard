@@ -1,5 +1,5 @@
 {
-  "name": "grunt-standard",
+  "name": "@4cm4k1/grunt-standard",
   "version": "3.0.0",
   "description": "Grunt Plugin for JavaScript Standard Style Linting and Formatting",
   "main": "Gruntfile.js",
@@ -20,6 +20,8 @@
     "grunt": "^1.0.1"
   },
   "standard": {
-    "globals": ["grunt"]
+    "globals": [
+      "grunt"
+    ]
   }
 }

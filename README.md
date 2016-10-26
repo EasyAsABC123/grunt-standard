@@ -1,6 +1,10 @@
-# grunt-standard
+# grunt-standard [![JavaScript Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 > Grunt Plugin for [JavaScript Standard Style](https://github.com/feross/standard) Linting and Formatting
+
+> Based on [@pdehaan/grunt-standard](https://github.com/pdehaan/grunt-standard)
+
+> Dependencies up-to-date!
 
 ## Install
 
@@ -71,10 +75,4 @@ grunt.initConfig({
 })
 ```
 
-## Contribute
-
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
-
-## Release History
-
-_(Nothing yet)_
+## [Contribute](https://github.com/4cm4k1/grunt-standard/blob/master/CONTRIBUTE.md)
