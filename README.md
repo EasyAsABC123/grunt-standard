@@ -1,61 +1,42 @@
-# grunt-standard
+# grunt-standard [![JavaScript Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/) [![GitHub release](https://img.shields.io/github/release/EasyAsABC123/grunt-standard.svg)](https://github.com/EasyAsABC123/grunt-standard/releases) [![npm (scoped)](https://img.shields.io/npm/v/grunt-standard.svg)](https://www.npmjs.com/package/grunt-standard) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/EasyAsABC123/grunt-standard/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/EasyAsABC123/grunt-standard.svg)](https://github.com/EasyAsABC123/grunt-standard/issues) [![GitHub followers](https://img.shields.io/github/followers/EasyAsABC123.svg?style=social&label=Follow)](https://github.com/EasyAsABC123)
 
-> Grunt plugin for [standard](https://github.com/feross/standard) linter.
+> Grunt Plugin for [JavaScript Standard Style](https://github.com/feross/standard) Linting and Formatting
 
-## Getting Started
-This plugin requires Grunt `~0.4.5`
+> Dependencies up-to-date!
 
-If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:
+## Install
 
+The following shell commands will install `grunt-standard` to your project's `package.json` in `devDependencies`.
+
+### npm
 ```shell
 npm install grunt-standard --save-dev
 ```
 
-Once the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:
-
-```js
-grunt.loadNpmTasks('grunt-standard');
+### Yarn
+```shell
+yarn add grunt-standard --dev
 ```
 
-## The "standard" task
+### Assumptions
 
-### Overview
-In your project's Gruntfile, add a section named `standard` to the data object passed into `grunt.initConfig()`.
+- You have the latest version of `grunt` in your project's `package.json`'s `devDependencies`.
+- You have added the npm task to your project's `Gruntfile.js`.
+- You are running the latest version of `node`.
 
-```js
-grunt.initConfig({
-  standard: {
-    options: {
-      // Task-specific options go here.
-    },
-    your_target: {
-      // Target-specific file lists and/or options go here.
-    },
-  },
-});
+```javascript
+grunt.loadNpmTasks('grunt-standard')
 ```
 
-### Options
+## Configure
 
-#### options.format
-Type: `Boolean`
-Default value: `false`
+In your project's `Gruntfile.js`, add a section named `standard` to the data object passed into `grunt.initConfig()`.
 
-Whether or not the source files should be auto-formatted using [standard-format](https://github.com/maxogden/standard-format).
+### Default
 
-#### options.lint
-Type: `Boolean`
-Default value: `true`
+In this example, the default options are used to lint the specified `*.js` files in the root, `lib/`, and `tasks/` directories:
 
-Whether ot not the source files should be linted using [standard](https://github.com/feross/standard).
-
-### Usage Examples
-
-#### Default Options
-
-In this example, the default options are used to lint the specified *.js files in the root directory, lib/ directory, and tasks/ directory:
-
-```js
+```javascript
 grunt.initConfig({
   standard: {
     app: {
@@ -67,15 +48,57 @@ grunt.initConfig({
 })
 ```
 
-#### Custom Options
+### Custom
 
-In this example, the `format` option is set to `true` so the source files will be auto-formatted (and written back to disk) before being linted:
+#### options.ignore
 
-```js
+- **Type:** `Array`
+- **Default:** `[]`
+- **Action:** Lint source files using [JavaScript Standard Style](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+#### options.cwd
+
+- **Type:** `String`
+- **Default:** `''`
+- **Action:** current working directory (default: process.cwd()) [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+#### options.fix
+
+- **Type:** `Boolean`
+- **Default:** `false`
+- **Action:** Auto-format source files using [standard --fix](https://github.com/feross/standard#is-there-an-automatic-formatter).
+
+#### options.globals
+
+- **Type:** `Array`
+- **Default:** `[]`
+- **Action:** global variables to declare [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+#### options.plugins
+
+- **Type:** `Array`
+- **Default:** `[]`
+- **Action:** eslint plugins [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+#### options.envs
+
+- **Type:** `Array`
+- **Default:** `[]`
+- **Action:** eslint environment [Valid Values](https://github.com/sindresorhus/globals/blob/master/globals.json).
+
+#### options.parser
+
+- **Type:** `Array`
+- **Default:** `''`
+- **Action:** js parser (e.g. babel-eslint) [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+In this example, the `fix` option is set to `true` so the source files will be auto-formatted (and written back to disk) before being linted:
+
+```javascript
 grunt.initConfig({
   standard: {
     options: {
-      format: true
+      fix: true
     },
     app: {
       src: [
@@ -86,8 +109,4 @@ grunt.initConfig({
 })
 ```
 
-## Contributing
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
-
-## Release History
-_(Nothing yet)_
+## [Contribute](CONTRIBUTE.md)
