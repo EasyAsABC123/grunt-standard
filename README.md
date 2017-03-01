@@ -1,24 +1,21 @@
-# grunt-standard [![JavaScript Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/) [![GitHub release](https://img.shields.io/github/release/4cm4k1/grunt-standard.svg)](https://github.com/4cm4k1/grunt-standard/releases) [![npm (scoped)](https://img.shields.io/npm/v/@4cm4k1/grunt-standard.svg)](https://www.npmjs.com/package/@4cm4k1/grunt-standard) [![license](https://img.shields.io/github/license/4cm4k1/grunt-standard.svg)](https://github.com/4cm4k1/grunt-standard/blob/master/LICENSE) [![Twitter Follow](https://img.shields.io/twitter/follow/4cm4k1.svg?style=social&label=Follow)](https://twitter.com/4cm4k1) [![GitHub followers](https://img.shields.io/github/followers/4cm4k1.svg?style=social&label=Follow)](https://github.com/4cm4k1)
+# grunt-standard [![JavaScript Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/) [![GitHub release](https://img.shields.io/github/release/EasyAsABC123/grunt-standard.svg)](https://github.com/EasyAsABC123/grunt-standard/releases) [![npm (scoped)](https://img.shields.io/npm/v/grunt-standard.svg)](https://www.npmjs.com/package/grunt-standard) [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/EasyAsABC123/grunt-standard/blob/master/LICENSE) [![GitHub issues](https://img.shields.io/github/issues/EasyAsABC123/grunt-standard.svg)](https://github.com/EasyAsABC123/grunt-standard/issues) [![GitHub followers](https://img.shields.io/github/followers/EasyAsABC123.svg?style=social&label=Follow)](https://github.com/EasyAsABC123)
 
 > Grunt Plugin for [JavaScript Standard Style](https://github.com/feross/standard) Linting and Formatting
-
-> Based on [@pdehaan/grunt-standard](https://github.com/pdehaan/grunt-standard)
-> And on [@4cm4k1/grunt-standard](https://github.com/4cm4k1/grunt-standard)
 
 > Dependencies up-to-date!
 
 ## Install
 
-The following shell commands will install `@EasyAsABC123/grunt-standard` to your project's `package.json` in `devDependencies`.
+The following shell commands will install `grunt-standard` to your project's `package.json` in `devDependencies`.
 
 ### npm
 ```shell
-npm install @EasyAsABC123/grunt-standard --save-dev
+npm install grunt-standard --save-dev
 ```
 
 ### Yarn
 ```shell
-yarn add @EasyAsABC123/grunt-standard --dev
+yarn add grunt-standard --dev
 ```
 
 ### Assumptions
@@ -28,7 +25,7 @@ yarn add @EasyAsABC123/grunt-standard --dev
 - You are running the latest version of `node`.
 
 ```javascript
-grunt.loadNpmTasks('@EasyAsABC123/grunt-standard')
+grunt.loadNpmTasks('grunt-standard')
 ```
 
 ## Configure
@@ -56,7 +53,7 @@ grunt.initConfig({
 #### options.ignore
 
 - **Type:** `Array`
-- **Default:** `[]]`
+- **Default:** `[]`
 - **Action:** Lint source files using [JavaScript Standard Style](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
 
 #### options.cwd
@@ -112,4 +109,4 @@ grunt.initConfig({
 })
 ```
 
-## [Contribute](https://github.com/4cm4k1/grunt-standard/blob/master/CONTRIBUTE.md)
+## [Contribute](CONTRIBUTE.md)
