@@ -3,21 +3,22 @@
 > Grunt Plugin for [JavaScript Standard Style](https://github.com/feross/standard) Linting and Formatting
 
 > Based on [@pdehaan/grunt-standard](https://github.com/pdehaan/grunt-standard)
+> And on [@4cm4k1/grunt-standard](https://github.com/4cm4k1/grunt-standard)
 
 > Dependencies up-to-date!
 
 ## Install
 
-The following shell commands will install `grunt-standard` to your project's `package.json` in `devDependencies`.
+The following shell commands will install `@EasyAsABC123/grunt-standard` to your project's `package.json` in `devDependencies`.
 
 ### npm
 ```shell
-npm install @4cm4k1/grunt-standard --save-dev
+npm install @EasyAsABC123/grunt-standard --save-dev
 ```
 
 ### Yarn
 ```shell
-yarn add @4cm4k1/grunt-standard --dev
+yarn add @EasyAsABC123/grunt-standard --dev
 ```
 
 ### Assumptions
@@ -27,7 +28,7 @@ yarn add @4cm4k1/grunt-standard --dev
 - You are running the latest version of `node`.
 
 ```javascript
-grunt.loadNpmTasks('grunt-standard')
+grunt.loadNpmTasks('@EasyAsABC123/grunt-standard')
 ```
 
 ## Configure
@@ -52,25 +53,55 @@ grunt.initConfig({
 
 ### Custom
 
-#### options.format
+#### options.ignore
+
+- **Type:** `Array`
+- **Default:** `[]]`
+- **Action:** Lint source files using [JavaScript Standard Style](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+#### options.cwd
+
+- **Type:** `String`
+- **Default:** `''`
+- **Action:** current working directory (default: process.cwd()) [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+#### options.fix
 
 - **Type:** `Boolean`
 - **Default:** `false`
-- **Action:** Auto-format source files using [standard-format](https://github.com/maxogden/standard-format).
+- **Action:** Auto-format source files using [standard --fix](https://github.com/feross/standard#is-there-an-automatic-formatter).
 
-#### options.lint
+#### options.globals
 
-- **Type:** `Boolean`
-- **Default:** `true`
-- **Action:** Lint source files using [JavaScript Standard Style](https://github.com/feross/standard).
+- **Type:** `Array`
+- **Default:** `[]`
+- **Action:** global variables to declare [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
 
-In this example, the `format` option is set to `true` so the source files will be auto-formatted (and written back to disk) before being linted:
+#### options.plugins
+
+- **Type:** `Array`
+- **Default:** `[]`
+- **Action:** eslint plugins [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+#### options.envs
+
+- **Type:** `Array`
+- **Default:** `[]`
+- **Action:** eslint environment [Valid Values](https://github.com/sindresorhus/globals/blob/master/globals.json).
+
+#### options.parser
+
+- **Type:** `Array`
+- **Default:** `''`
+- **Action:** js parser (e.g. babel-eslint) [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
+
+In this example, the `fix` option is set to `true` so the source files will be auto-formatted (and written back to disk) before being linted:
 
 ```javascript
 grunt.initConfig({
   standard: {
     options: {
-      format: true
+      fix: true
     },
     app: {
       src: [

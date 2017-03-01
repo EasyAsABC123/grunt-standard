@@ -8,7 +8,6 @@
 
 'use strict'
 
-var formatter = require('../lib/formatter').formatFile
 var reporter = require('../lib/reporter').reporter
 var lintFiles = require('../lib/linter').lintFiles
 
@@ -20,26 +19,22 @@ module.exports = function (grunt) {
     var done = this.async()
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-      format: false,
-      lint: true
+      ignore: [],   // file globs to ignore (has sane defaults)
+      cwd: '',      // current working directory (default: process.cwd())
+      fix: false,   // automatically fix problems
+      globals: [],  // global variables to declare
+      plugins: [],  // eslint plugins
+      envs: [],     // eslint environment
+      parser: ''    // js parser (e.g. babel-eslint)
     })
 
-    if (options.format) {
-      grunt.log.subhead('Formatting files...')
-      this.filesSrc.forEach(function (file) {
-        formatter(grunt, file)
-      })
-    }
-
-    if (options.lint) {
-      grunt.log.subhead('Linting files...')
-      lintFiles(this.filesSrc).then(function (data) {
-        var success = reporter(grunt, data)
-        done(success)
-      }).catch(function (err) {
-        grunt.fail.fatal(err.toString())
-        done(false)
-      })
-    }
+    grunt.log.subhead('Linting files...')
+    lintFiles(this.filesSrc, options).then(function (data) {
+      var success = reporter(grunt, data)
+      done(success)
+    }).catch(function (err) {
+      grunt.fail.fatal(err.toString())
+      done(false)
+    })
   })
 }

@@ -1,19 +1,18 @@
 {
-  "name": "@4cm4k1/grunt-standard",
-  "version": "3.0.1",
+  "name": "@EasyAsABC123/grunt-standard",
+  "version": "3.0.2",
   "description": "Grunt Plugin for JavaScript Standard Style Linting and Formatting",
   "main": "Gruntfile.js",
   "repository": {
-    "url": "git@github.com:4cm4k1/grunt-standard.git",
+    "url": "git@github.com:EasyAsABC123/grunt-standard.git",
     "type": "git"
   },
-  "author": "Anthony Maki <4cm4k1@gmail.com>",
+  "author": "Justin Schuhmann <jmschu02@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "chalk": "^1.1.3",
     "promise": "^7.1.1",
     "standard": "^8.5.0",
-    "standard-format": "^2.2.3",
     "text-table": "^0.2.0"
   },
   "devDependencies": {

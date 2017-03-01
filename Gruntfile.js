@@ -13,9 +13,6 @@ module.exports = function (grunt) {
   grunt.initConfig({
     // Configuration to be run (and then tested).
     standard: {
-      options: {
-        format: false
-      },
       app: {
         src: [
           '{,lib/,tasks/}*.js'
