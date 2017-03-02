@@ -2,7 +2,7 @@
 
 > Grunt Plugin for [JavaScript Standard Style](https://github.com/feross/standard) Linting and Formatting
 
-> Dependencies up-to-date!
+> Dependencies old, support for NodeJS >= 0.10
 
 ## Install
 
@@ -10,19 +10,14 @@ The following shell commands will install `grunt-standard` to your project's `pa
 
 ### npm
 ```shell
-npm install grunt-standard --save-dev
-```
-
-### Yarn
-```shell
-yarn add grunt-standard --dev
+npm install grunt-standard '2.15.0' --save-dev
 ```
 
 ### Assumptions
 
 - You have the latest version of `grunt` in your project's `package.json`'s `devDependencies`.
 - You have added the npm task to your project's `Gruntfile.js`.
-- You are running `node >= 4`.
+- You are running `node >= 0.10`.
 
 ```javascript
 grunt.loadNpmTasks('grunt-standard')
@@ -66,25 +61,13 @@ grunt.initConfig({
 
 - **Type:** `Boolean`
 - **Default:** `false`
-- **Action:** Auto-format source files using [standard --fix](https://github.com/feross/standard#is-there-an-automatic-formatter).
+- **Action:** Auto-format source files using [standard-format](https://github.com/maxogden/standard-format).
 
 #### options.globals
 
 - **Type:** `Array`
 - **Default:** `[]`
 - **Action:** global variables to declare [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
-
-#### options.plugins
-
-- **Type:** `Array`
-- **Default:** `[]`
-- **Action:** eslint plugins [Documentation](https://github.com/feross/standard#standardlintfilesfiles-opts-callback).
-
-#### options.envs
-
-- **Type:** `Array`
-- **Default:** `[]`
-- **Action:** eslint environment [Valid Values](https://github.com/sindresorhus/globals/blob/master/globals.json).
 
 #### options.parser
 

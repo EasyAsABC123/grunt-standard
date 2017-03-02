@@ -14,6 +14,9 @@ module.exports = function (grunt) {
     // Configuration to be run (and then tested).
     standard: {
       app: {
+        options: {
+          fix: true
+        },
         src: [
           '{,lib/,tasks/}*.js'
         ]
