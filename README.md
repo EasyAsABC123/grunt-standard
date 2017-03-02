@@ -22,7 +22,7 @@ yarn add grunt-standard --dev
 
 - You have the latest version of `grunt` in your project's `package.json`'s `devDependencies`.
 - You have added the npm task to your project's `Gruntfile.js`.
-- You are running the latest version of `node`.
+- You are running `node >= 4`.
 
 ```javascript
 grunt.loadNpmTasks('grunt-standard')

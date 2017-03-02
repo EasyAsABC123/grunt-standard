@@ -1,6 +1,6 @@
 {
   "name": "grunt-standard",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Grunt Plugin for JavaScript Standard Style Linting and Formatting",
   "main": "Gruntfile.js",
   "repository": {
@@ -30,7 +30,7 @@
     "grunt": "^1.0.1"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.0"
   },
   "homepage": "https://github.com/EasyAsABC123/grunt-standard",
   "standard": {
@@ -42,6 +42,6 @@
     "outdated": "npm outdated --depth 0",
     "postshrinkwrap": "grunt validate-shrinkwrap --force",
     "shrinkwrap": "npm-shrinkwrap --dev",
-    "test": "standard"
+    "test": "grunt"
   }
 }
