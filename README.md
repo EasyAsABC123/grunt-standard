@@ -28,6 +28,10 @@ yarn add grunt-standard --dev
 grunt.loadNpmTasks('grunt-standard')
 ```
 
+### Notes
+
+- If you are running `node < 4` use [`2.15.0`](https://github.com/EasyAsABC123/grunt-standard/tree/node-0.10-support)
+
 ## Configure
 
 In your project's `Gruntfile.js`, add a section named `standard` to the data object passed into `grunt.initConfig()`.
