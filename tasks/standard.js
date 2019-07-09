@@ -19,13 +19,13 @@ module.exports = function (grunt) {
     var done = this.async()
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-      ignore: [],   // file globs to ignore (has sane defaults)
-      cwd: '',      // current working directory (default: process.cwd())
-      fix: false,   // automatically fix problems
-      globals: [],  // global variables to declare
-      plugins: [],  // eslint plugins
-      envs: [],     // eslint environment
-      parser: ''    // js parser (e.g. babel-eslint)
+      ignore: [], // file globs to ignore (has sane defaults)
+      cwd: '', // current working directory (default: process.cwd())
+      fix: false, // automatically fix problems
+      globals: [], // global variables to declare
+      plugins: [], // eslint plugins
+      envs: [], // eslint environment
+      parser: '' // js parser (e.g. babel-eslint)
     })
 
     grunt.log.subhead('Linting files...')
