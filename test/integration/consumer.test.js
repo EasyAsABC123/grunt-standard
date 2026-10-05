@@ -37,7 +37,9 @@ function npm (args, cwd) {
 
 before(() => {
   temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'grunt-standard-consumers-'))
-  const pack = JSON.parse(npm(['pack', '--ignore-scripts', '--json', '--pack-destination', temporary], repository).stdout)[0]
+  const packResult = JSON.parse(npm(['pack', '--ignore-scripts', '--json', '--pack-destination', temporary], repository).stdout)
+  const pack = Array.isArray(packResult) ? packResult[0] : packResult['grunt-standard']
+  assert.equal(pack?.filename, `grunt-standard-${candidateVersion}.tgz`, 'npm pack must return the candidate tarball metadata')
   packed = pack
   for (const release of ['3.2.0', candidateVersion]) {
     const project = path.join(temporary, release)
