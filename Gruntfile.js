@@ -1,9 +1,10 @@
 /*
  * grunt-standard
- * https://github.com/pdehaan/grunt-standard
+ * https://github.com/EasyAsABC123/grunt-standard
  *
  * Copyright (c) 2015 Peter deHaan
- * Licensed under the WTFPL license.
+ * Copyright (c) 2017 Justin Schuhmann
+ * Licensed under the MIT license.
  */
 
 'use strict'
@@ -15,7 +16,7 @@ module.exports = function (grunt) {
     standard: {
       app: {
         src: [
-          '{,lib/,tasks/}*.js'
+          '{,lib/,tasks/,test/,scripts/}*.js'
         ]
       }
     }
