@@ -9,6 +9,8 @@ const { spawnSync } = require('node:child_process')
 
 const repository = path.resolve(__dirname, '../..')
 const fixture = path.join(repository, 'test/fixtures/consumer')
+const candidateVersion = JSON.parse(fs.readFileSync(path.join(repository, 'package.json'))).version
+const candidateStandardVersion = JSON.parse(fs.readFileSync(path.join(repository, 'package-lock.json'))).packages['node_modules/standard'].version
 const npmCli = process.env.npm_execpath || fs.realpathSync(path.join(path.dirname(process.execPath), 'npm'))
 let temporary
 let packed
@@ -37,7 +39,7 @@ before(() => {
   temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'grunt-standard-consumers-'))
   const pack = JSON.parse(npm(['pack', '--ignore-scripts', '--json', '--pack-destination', temporary], repository).stdout)[0]
   packed = pack
-  for (const release of ['3.2.0', '4.0.0']) {
+  for (const release of ['3.2.0', candidateVersion]) {
     const project = path.join(temporary, release)
     fs.mkdirSync(project)
     fs.copyFileSync(path.join(fixture, 'package.fixture.json'), path.join(project, 'package.json'))
@@ -48,7 +50,7 @@ before(() => {
       if (!location) continue
       assert.equal(JSON.parse(fs.readFileSync(path.join(project, location, 'package.json'))).version, entry.version, location)
     }
-    if (release === '4.0.0') {
+    if (release === candidateVersion) {
       npm(['install', '--ignore-scripts', '--no-audit', '--no-fund', '--save-exact', path.join(temporary, pack.filename)], project)
     }
     const installed = path.join(project, 'node_modules/grunt-standard')
@@ -56,7 +58,7 @@ before(() => {
     assert.equal(JSON.parse(fs.readFileSync(path.join(project, 'node_modules/grunt/package.json'))).version, '1.6.3')
     assert.equal(fs.lstatSync(installed).isSymbolicLink(), false)
     const standard = require.resolve('standard/package.json', { paths: [installed] })
-    assert.equal(JSON.parse(fs.readFileSync(standard)).version, release === '3.2.0' ? '12.0.1' : '17.1.2')
+    assert.equal(JSON.parse(fs.readFileSync(standard)).version, release === '3.2.0' ? '12.0.1' : candidateStandardVersion)
     projects[release] = { project, installed }
   }
 }, { timeout: 360000 })
@@ -81,7 +83,7 @@ function consumer (release, files = {}, standard = { app: { src: ['source.js'] }
   }
 }
 
-for (const release of ['3.2.0', '4.0.0']) {
+for (const release of ['3.2.0', candidateVersion]) {
   describe('installed npm consumer ' + release, () => {
     test('discovers task through loadNpmTasks, help and clean source', () => {
       const app = consumer(release, { 'source.js': "console.log('clean')\n" })
@@ -154,12 +156,12 @@ for (const release of ['3.2.0', '4.0.0']) {
         const dirty = app.run('standard', '--verbose')
         assert.equal(dirty.status, 3, dirty.output)
         assert.match(dirty.output, /quotes|semi/)
-        if (release === '4.0.0') assert.doesNotMatch(dirty.output, /nestedGlobal.*not defined/)
+        if (release === candidateVersion) assert.doesNotMatch(dirty.output, /nestedGlobal.*not defined/)
         else assert.match(dirty.output, /nestedGlobal.*not defined/)
         assert.equal(app.read('nested dir/source.js'), 'nestedGlobal("cwd");\n')
         configure(true)
         const fixed = app.run()
-        assert.equal(fixed.status, release === '4.0.0' ? 0 : 3, fixed.output)
+        assert.equal(fixed.status, release === candidateVersion ? 0 : 3, fixed.output)
         if (release === '3.2.0') assert.match(fixed.output, /nestedGlobal.*not defined/)
         assert.equal(app.read('nested dir/source.js'), "nestedGlobal('cwd')\n")
         assert.equal(app.read('unrelated.js'), 'console.log("untouched");\n')
@@ -212,17 +214,17 @@ for (const release of ['3.2.0', '4.0.0']) {
 
 describe('intentional release differences', () => {
   test('empty target no longer broadens lint/fix to unrelated files', () => {
-    for (const release of ['3.2.0', '4.0.0']) {
+    for (const release of ['3.2.0', candidateVersion]) {
       const dirty = 'console.log("untouched");\n'
       const app = consumer(release, { 'unrelated.js': dirty }, { options: { fix: true }, app: { src: ['missing-*.js'] } })
       const result = app.run()
       assert.equal(result.status, 0, result.output)
-      assert.equal(app.read('unrelated.js'), release === '4.0.0' ? dirty : "console.log('untouched')\n")
+      assert.equal(app.read('unrelated.js'), release === candidateVersion ? dirty : "console.log('untouched')\n")
     }
   })
 
   test('explicit ignore and all-ignored targets leave sources unchanged in both releases', () => {
-    for (const release of ['3.2.0', '4.0.0']) {
+    for (const release of ['3.2.0', candidateVersion]) {
       const source = 'console.log("ignored");\n'
       const app = consumer(release, { 'source.js': source }, { options: { ignore: ['source.js'], fix: true }, app: { src: ['source.js'] } })
       const result = app.run()
@@ -232,10 +234,10 @@ describe('intentional release differences', () => {
   })
 
   test('default cwd now honors package Standard globals configuration', () => {
-    for (const release of ['3.2.0', '4.0.0']) {
+    for (const release of ['3.2.0', candidateVersion]) {
       const app = consumer(release, { 'source.js': 'fromPackage()\n' }, { app: { src: ['source.js'] } }, { standard: { globals: ['fromPackage'] } })
       const result = app.run()
-      assert.equal(result.status, release === '4.0.0' ? 0 : 3, result.output)
+      assert.equal(result.status, release === candidateVersion ? 0 : 3, result.output)
       if (release === '3.2.0') assert.match(result.output, /fromPackage.*not defined/)
     }
   })
@@ -243,7 +245,7 @@ describe('intentional release differences', () => {
   test('Standard 17 introduces prefer-const warnings absent in Standard 12', () => {
     const source = "var value = 'hello'\nconsole.log(value)\n"
     const legacy = consumer('3.2.0', { 'source.js': source }).run()
-    const current = consumer('4.0.0', { 'source.js': source }).run('standard', '--verbose')
+    const current = consumer(candidateVersion, { 'source.js': source }).run('standard', '--verbose')
     assert.equal(legacy.status, 0, legacy.output)
     assert.notEqual(current.status, 0)
     assert.match(current.output, /const|no-var/)
@@ -251,7 +253,7 @@ describe('intentional release differences', () => {
 
   test('candidate consumer diagnostics escape bidi controls in filenames', () => {
     const filename = 'source\u202e.js'
-    const app = consumer('4.0.0', { [filename]: 'console.log("dirty");\n' }, { app: { src: [filename] } })
+    const app = consumer(candidateVersion, { [filename]: 'console.log("dirty");\n' }, { app: { src: [filename] } })
     const result = app.run()
     assert.notEqual(result.status, 0)
     assert.ok(result.output.includes('source\\u202e.js'))
