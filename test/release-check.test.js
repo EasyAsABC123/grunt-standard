@@ -5,12 +5,35 @@ const test = require('node:test')
 const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
+const vm = require('node:vm')
 const { spawnSync, execFileSync } = require('node:child_process')
 const { validateBuild, classifyRegistry } = require('../scripts/release-check')
 
 const canonical = 'EasyAsABC123/grunt-standard'
 const repositoryUrl = 'git+https://github.com/EasyAsABC123/grunt-standard.git'
 const sha = 'a'.repeat(40)
+
+test('publish workflow accepts successful canonical pushes and manual dry runs only', () => {
+  const workflow = fs.readFileSync(path.resolve(__dirname, '../.github/workflows/publish.yml'), 'utf8')
+  const condition = workflow.match(/ {2}validate:\n {4}if: (.+)\n/)[1]
+  const accepts = (github) => vm.runInNewContext(condition, { github })
+  const github = {
+    repository: canonical,
+    event_name: 'workflow_run',
+    event: { workflow_run: { event: 'push', conclusion: 'success', head_repository: { full_name: canonical } } }
+  }
+  assert.equal(accepts(github), true)
+  for (const event of ['schedule', 'workflow_dispatch', 'pull_request']) {
+    assert.equal(accepts({ ...github, event: { workflow_run: { ...github.event.workflow_run, event } } }), false)
+  }
+  for (const conclusion of ['failure', 'cancelled', 'skipped']) {
+    assert.equal(accepts({ ...github, event: { workflow_run: { ...github.event.workflow_run, conclusion } } }), false)
+  }
+  assert.equal(accepts({ ...github, event: { workflow_run: { ...github.event.workflow_run, head_repository: { full_name: 'fork/grunt-standard' } } } }), false)
+  assert.equal(accepts({ ...github, event_name: 'workflow_dispatch', event: {} }), true)
+  assert.equal(accepts({ ...github, repository: 'fork/grunt-standard' }), false)
+  assert.equal(accepts({ ...github, repository: 'fork/grunt-standard', event_name: 'workflow_dispatch', event: {} }), false)
+})
 
 function build (overrides = {}) {
   return {
