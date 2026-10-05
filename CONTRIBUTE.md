@@ -43,7 +43,11 @@ current dependencies, use `npm install` and include the updated lockfile in your
 pull request. GitHub Actions runs coverage and both release integration checks
 on Node.js 22 and 24.
 
-Describe the problem and resulting behavior in your pull request, and include the checks you ran. Changes to linting behavior should include a focused regression test.
+Describe the problem and resulting behavior in your pull request, and include the checks you ran. Changes to linting behavior should include a focused regression test. Assert
+exact selected paths and file contents, and verify failures have normal exit
+codes. Async task tests should wait for actual completion rather than assume
+a fixed number of event-loop turns. Keep case inputs isolated and confirm
+configuration changes do not leak between calls.
 
 ## Code of Conduct
 

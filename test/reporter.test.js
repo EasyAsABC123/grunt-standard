@@ -149,3 +149,23 @@ test('aggregate-only summaries color errors red, warnings yellow, and clean resu
     assert.equal(grunt.logs[0], '\n' + expected)
   }
 })
+
+test('reporter preserves frozen result data and the supplied diagnostic ordering', () => {
+  const diagnostics = Object.freeze([
+    Object.freeze(diagnostic('first diagnostic', { line: 12, column: 30 })),
+    Object.freeze(diagnostic('second diagnostic', { line: 2, column: 3 }))
+  ])
+  const data = Object.freeze({
+    errorCount: 2,
+    warningCount: 0,
+    results: Object.freeze([Object.freeze(file('immutable.js', diagnostics))])
+  })
+  const before = JSON.stringify(data)
+  const grunt = logger(true)
+  assert.equal(reporter(grunt, data), false)
+  assert.equal(JSON.stringify(data), before)
+  const rows = stripVTControlCharacters(grunt.logs[0]).split('\n').filter(row => row.includes('diagnostic'))
+  assert.equal(rows.length, 2)
+  assert.match(rows[0], /line 12\s+col 30\s+first diagnostic/)
+  assert.match(rows[1], /line 2\s+col 3\s+second diagnostic/)
+})

@@ -30,7 +30,10 @@ Use trusted Gruntfiles and configuration. Do not pass untrusted glob patterns
 to Grunt's configuration discovery. CI installs with `npm ci --ignore-scripts`,
 runs jobs with read-only repository permissions and a timeout, gates production
 audits, and checks the full audit against this single known advisory. New or
-unrecognized development findings fail CI as well. Dependabot
+unrecognized development findings fail CI as well. The exception validates
+reviewed package locations, development-only lockfile flags, and dependency
+provenance; additional consumers or relocated copies require a fresh review.
+The audit subprocess and lockfile lookup both target this repository. Dependabot
 checks weekly for upstream updates. These measures limit exposure; they do not
 patch `braces`. Keep the full audit visible until upstream provides a fix.
 

@@ -25,12 +25,14 @@ function taskWithDependencies (lintFiles, reporter) {
   }
 }
 
-async function runTask ({ lintFiles, reporter, options = {}, files = ['selected.js'] }) {
+function startTask ({ lintFiles, reporter, options = {}, files = ['selected.js'] }) {
   const events = []
   const errors = []
   const completions = []
   let callback
   let defaults
+  let resolveCompletion
+  const completion = new Promise(resolve => { resolveCompletion = resolve })
   const grunt = {
     registerMultiTask: (name, description, fn) => {
       assert.equal(name, 'standard')
@@ -47,19 +49,28 @@ async function runTask ({ lintFiles, reporter, options = {}, files = ['selected.
     filesSrc: files,
     async: () => {
       events.push('async')
-      return result => completions.push(result)
+      return result => {
+        completions.push(result)
+        resolveCompletion()
+      }
     },
     options: value => {
       defaults = value
       return { ...value, ...options }
     }
   })
-  // Flush the promise chain through completion, including unexpected extra calls.
-  await new Promise(resolve => setImmediate(resolve))
-  return { defaults, events, errors, completions }
+  return { defaults, events, errors, completions, completion }
 }
 
-test('task registers, merges defaults and forwards selected files and reporter result', async () => {
+async function runTask (settings) {
+  const run = startTask(settings)
+  // Wait for the actual callback instead of assuming one event-loop turn suffices.
+  await run.completion
+  await new Promise(resolve => setImmediate(resolve))
+  return run
+}
+
+test('task registers, merges defaults and forwards selected files and reporter result', { timeout: 2000 }, async () => {
   const files = ['one.js', 'two.js']
   const data = { results: [], errorCount: 0, warningCount: 0 }
   let receivedOptions
@@ -86,13 +97,13 @@ test('task registers, merges defaults and forwards selected files and reporter r
   assert.deepEqual(run.errors, [])
 })
 
-test('task completes exactly once with failed reporter status', async () => {
+test('task completes exactly once with failed reporter status', { timeout: 2000 }, async () => {
   const run = await runTask({ lintFiles: async () => ({}), reporter: () => false })
   assert.deepEqual(run.completions, [false])
   assert.deepEqual(run.errors, [])
 })
 
-test('task handles async lint rejections and safely logs errors without invoking reporter', async () => {
+test('task handles async lint rejections and safely logs errors without invoking reporter', { timeout: 2000 }, async () => {
   for (const rejection of [new Error('bad\u001b[2J\nconfig'), 'failure\u0007\rtext']) {
     const run = await runTask({
       lintFiles: async () => { throw rejection },
@@ -106,7 +117,7 @@ test('task handles async lint rejections and safely logs errors without invoking
   }
 })
 
-test('task catches reporter exceptions and rejected reporter promises exactly once', async () => {
+test('task catches reporter exceptions and rejected reporter promises exactly once', { timeout: 2000 }, async () => {
   for (const reporter of [
     () => { throw new Error('reporter\u202efailure') },
     async () => { throw new Error('async reporter\nfailed') }
@@ -119,7 +130,7 @@ test('task catches reporter exceptions and rejected reporter promises exactly on
   }
 })
 
-test('empty task file lists and custom option arrays pass through without mutation', async () => {
+test('empty task file lists and custom option arrays pass through without mutation', { timeout: 2000 }, async () => {
   const options = { ignore: ['vendor/**'], envs: ['browser'], plugins: ['test'], parser: 'parser' }
   const original = structuredClone(options)
   const run = await runTask({
@@ -134,4 +145,43 @@ test('empty task file lists and custom option arrays pass through without mutati
   })
   assert.deepEqual(options, original)
   assert.deepEqual(run.completions, [true])
+})
+
+test('task waits for both lint and reporter to finish before completing exactly once', { timeout: 2000 }, async () => {
+  let resolveLint
+  let resolveReport
+  let reporterCalls = 0
+  const lint = new Promise(resolve => { resolveLint = resolve })
+  const report = new Promise(resolve => { resolveReport = resolve })
+  const data = { results: [], errorCount: 0, warningCount: 0 }
+  const run = startTask({
+    lintFiles: () => lint,
+    reporter: (grunt, received) => {
+      assert.equal(received, data)
+      reporterCalls++
+      return report
+    }
+  })
+  await new Promise(resolve => setImmediate(resolve))
+  assert.deepEqual(run.completions, [], 'pending lint must not complete the task')
+  assert.equal(reporterCalls, 0, 'reporter must not run before lint settles')
+  resolveLint(data)
+  await new Promise(resolve => setImmediate(resolve))
+  assert.equal(reporterCalls, 1)
+  assert.deepEqual(run.completions, [], 'pending reporter must not complete the task')
+  resolveReport(false)
+  await run.completion
+  await new Promise(resolve => setImmediate(resolve))
+  assert.deepEqual(run.completions, [false])
+  assert.deepEqual(run.errors, [])
+})
+
+test('task dependency stubs restore exact original module cache entries', () => {
+  const names = ['../lib/linter', '../lib/reporter', '../tasks/standard'].map(require.resolve)
+  const exports = names.map(name => require(name))
+  const originals = names.map(name => require.cache[name])
+  const task = taskWithDependencies(async () => ({}), () => true)
+  assert.equal(typeof task, 'function')
+  names.forEach((name, index) => assert.equal(require.cache[name], originals[index]))
+  names.forEach((name, index) => assert.equal(require(name), exports[index]))
 })
