@@ -81,7 +81,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' && steps.release.outputs.eligible == 'true'
         env:
           RELEASE_VERSION: ${{ steps.release.outputs.version }}
-        run: npm publish "dist/grunt-standard-$RELEASE_VERSION.tgz" --dry-run --ignore-scripts --access public
+        run: npm publish "./dist/grunt-standard-$RELEASE_VERSION.tgz" --dry-run --ignore-scripts --access public
       - name: Upload the immutable validated package
         if: steps.release.outputs.eligible == 'true'
         id: upload
@@ -133,7 +133,7 @@ jobs:
             echo '::notice::Skipping stale validated commit; the branch advanced during validation.'
             exit 0
           fi
-          tarball="artifact/grunt-standard-$RELEASE_VERSION.tgz"
+          tarball="./artifact/grunt-standard-$RELEASE_VERSION.tgz"
           printf '%s  %s\n' "$TARBALL_SHA256" "$tarball" | sha256sum --check --strict
           # workflow_run defaults identify the workflow branch, not its tested source.
           # npm uses these two variables for provenance source metadata; workflow
