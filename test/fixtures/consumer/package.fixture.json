@@ -1,0 +1,9 @@
+{
+  "name": "grunt-standard-consumer-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "grunt": "1.6.3",
+    "grunt-standard": "3.2.0"
+  }
+}

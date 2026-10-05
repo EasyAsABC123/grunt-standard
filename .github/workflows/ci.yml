@@ -35,8 +35,12 @@ jobs:
           package-manager-cache: false
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
-      - name: Test
-        run: npm test
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests and coverage
+        run: npm run test:coverage
+      - name: Published 3.2.0 and packed 4.0.0 consumer integration
+        run: npm run test:integration
       - name: Audit production dependencies
         run: npm audit --omit=dev
       - name: Audit all dependencies with the tracked upstream exception

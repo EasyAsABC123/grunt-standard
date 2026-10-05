@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^6.0.1",
+    "is-glob": "^4.0.3",
     "standard": "^17.1.2",
     "text-table": "^0.2.0"
   },
@@ -35,8 +36,11 @@
   "scripts": {
     "outdated": "npm outdated --depth 0",
     "lint": "grunt",
-    "test": "npm run lint && node --test",
-    "audit": "npm audit"
+    "test": "npm run lint && npm run test:coverage && npm run test:integration",
+    "audit": "npm audit",
+    "test:unit": "node --test test/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=95 --test-coverage-functions=95 --test-coverage-include='lib/**' --test-coverage-include='tasks/**' --test-coverage-include='scripts/**' test/*.test.js",
+    "test:integration": "node --test test/integration/*.test.js"
   },
   "files": [
     "tasks/",
