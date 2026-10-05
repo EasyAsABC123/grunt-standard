@@ -16,7 +16,11 @@ module.exports = function (grunt) {
     standard: {
       app: {
         src: [
-          '{,lib/,tasks/,test/,scripts/}*.js'
+          'Gruntfile.js',
+          'lib/**/*.js',
+          'tasks/**/*.js',
+          'scripts/**/*.js',
+          'test/**/*.js'
         ]
       }
     }

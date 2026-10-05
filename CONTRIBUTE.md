@@ -6,15 +6,42 @@ When contributing, remember to _**be excellent to one another!**_ If in doubt, p
 
 ## Development
 
-Use Node.js 22 or newer and npm. Clone this repository, then run:
+Use Node.js 22.13 or newer and npm. Clone this repository, then run:
 
 ```shell
-npm ci
+npm ci --ignore-scripts
 npm test
-npm audit
+npm audit --omit=dev
+node scripts/audit.js
 ```
 
-`npm ci` installs the versions recorded in `package-lock.json`. When updating dependencies, use `npm install` and include the updated lockfile in your pull request. GitHub Actions runs the checks on supported Node.js versions.
+`npm test` runs lint, unit tests with coverage, and consumer integration tests.
+Use `npm run test:unit` for the fast local suite without package installation,
+`npm run test:coverage` to see runtime coverage (CI requires at least 95%
+of lines, branches, and functions), or
+`npm run test:integration` for the installed-package checks alone.
+
+The integration suite requires registry access. It installs the published
+`grunt-standard@3.2.0` release from a frozen historical fixture and the current
+release from an actual `npm pack` tarball into independent temporary projects.
+It then calls `grunt.loadNpmTasks('grunt-standard')`, runs the installed CLI,
+and checks direct module contracts. No repository `node_modules` symlink is
+used to stand in for a consumer installation. Tests check shared behavior and
+explicit differences between Standard 12 and Standard 17. Temporary files are
+removed after testing, and installation or subprocess errors fail the suite.
+
+The historical fixture intentionally contains older dependencies to reproduce
+3.2.0. Its manifest and lockfile are archived under fixture filenames, then
+copied to npm's expected filenames in the temporary project. Do not upgrade
+that baseline as part of routine dependency maintenance or treat it as a new
+production dependency. Installation scripts are disabled. Production and full
+audit gates apply to the current project; auditing the legacy fixture would
+report known vulnerabilities in the old release.
+
+`npm ci` installs the versions recorded in `package-lock.json`. When updating
+current dependencies, use `npm install` and include the updated lockfile in your
+pull request. GitHub Actions runs coverage and both release integration checks
+on Node.js 22 and 24.
 
 Describe the problem and resulting behavior in your pull request, and include the checks you ran. Changes to linting behavior should include a focused regression test.
 

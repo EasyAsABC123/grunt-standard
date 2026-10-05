@@ -45,6 +45,9 @@ overrides when Grunt updates its dependency requirements.
   trigger Standard's whole-project fallback or rewrite unrelated files.
 - Explicit Grunt file selections respect Standard ignore rules before linting
   or fixing. If every file is ignored, no whole-project fallback occurs.
+- Unexpanded globs reach ESLint before ignore negations are applied, preventing
+  silently skipped re-included files. Literal filenames containing glob
+  characters continue to respect ignore rules.
 - The wrapper uses Standard's asynchronous API and aggregates the returned
   ESLint results. Lint failures and rejected operations complete the Grunt task
   with failure.
@@ -72,6 +75,8 @@ selected source files. This plugin does not sandbox project configuration.
 ```shell
 npm ci --ignore-scripts
 npm test
+npm run test:unit
+npm run test:integration
 npm audit --omit=dev
 npm audit
 node scripts/audit.js

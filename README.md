@@ -32,7 +32,7 @@ grunt.loadNpmTasks('grunt-standard')
 
 This release raises the Node.js requirement from Node.js 4 to Node.js 22.13 and upgrades JavaScript Standard Style from version 12 to version 17. These are breaking changes: update your Node.js runtime and review the [Standard changelog](https://github.com/standard/standard/blob/master/CHANGELOG.md) for lint rules that can affect your project.
 
-The Grunt `standard` task and its configuration options remain available. Custom ESLint parsers and plugins must be compatible with Standard 17 and its ESLint 8 dependency.
+The Grunt `standard` task and its configuration options remain available. The default working directory now correctly honors Standard configuration in your project's `package.json`. Custom ESLint parsers and plugins must be compatible with Standard 17 and its ESLint 8 dependency.
 
 ## Configure
 
