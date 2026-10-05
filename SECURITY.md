@@ -43,6 +43,8 @@ overrides when Grunt updates its dependency requirements.
 
 - Empty file selections return immediately, so an unmatched Grunt target cannot
   trigger Standard's whole-project fallback or rewrite unrelated files.
+- Explicit Grunt file selections respect Standard ignore rules before linting
+  or fixing. If every file is ignored, no whole-project fallback occurs.
 - The wrapper uses Standard's asynchronous API and aggregates the returned
   ESLint results. Lint failures and rejected operations complete the Grunt task
   with failure.

@@ -61,6 +61,66 @@ test('legacy empty cwd falls back to the current working directory', async () =>
   assert.equal(data.errorCount, 0)
 })
 
+test('relative cwd resolves without mutating task options', async t => {
+  const directory = await fixture(t)
+  await fs.writeFile(path.join(directory, 'source.js'), "console.log('hello')\n")
+  const options = { cwd: path.relative(process.cwd(), directory) }
+  const original = options.cwd
+  const data = await lintFiles(['source.js'], options)
+  assert.equal(data.errorCount, 0)
+  assert.equal(data.results[0].filePath, path.join(directory, 'source.js'))
+  assert.equal(options.cwd, original)
+})
+
+test('ignored explicit files are skipped without suppressing real lint warnings', async t => {
+  for (const ignoreSource of ['options', 'package', 'git', 'default']) {
+    await t.test(ignoreSource, async t => {
+      const cwd = await fixture(t)
+      const ignoredFile = ignoreSource === 'default' ? 'vendor/ignored.js' : 'ignored.js'
+      const filename = path.join(cwd, ignoredFile)
+      await fs.mkdir(path.dirname(filename), { recursive: true })
+      await fs.writeFile(filename, 'const =\n')
+      await fs.writeFile(path.join(cwd, 'clean.js'), "console.log('hello')\n")
+      const options = { cwd }
+      if (ignoreSource === 'options') options.ignore = [ignoredFile]
+      if (ignoreSource === 'package') {
+        await fs.writeFile(path.join(cwd, 'package.json'), JSON.stringify({ standard: { ignore: [ignoredFile] } }))
+      }
+      if (ignoreSource === 'git') await fs.writeFile(path.join(cwd, '.gitignore'), ignoredFile + '\n')
+      const clean = await lintFiles(['clean.js', ignoredFile], options)
+      assert.equal(clean.results.length, 1)
+      assert.equal(clean.errorCount, 0)
+      assert.equal(clean.warningCount, 0)
+      assert.equal(reporter(logger(), clean), true)
+      await fs.writeFile(path.join(cwd, 'warning.js'), 'var count = 1\nconsole.log(count)\n')
+      const warning = await lintFiles(['warning.js', ignoredFile], options)
+      assert.equal(warning.errorCount, 0)
+      assert.ok(warning.warningCount > 0)
+      assert.equal(reporter(logger(), warning), false)
+    })
+  }
+})
+
+test('all-ignored targets never fall back to whole-project fixes', async t => {
+  const cwd = await fixture(t)
+  const source = 'console.log("hello");\n'
+  await fs.writeFile(path.join(cwd, 'ignored.js'), source)
+  await fs.writeFile(path.join(cwd, 'unrelated.js'), source)
+  assert.deepEqual(await lintFiles(['ignored.js'], { cwd, ignore: ['ignored.js'], fix: true }), {
+    results: [], errorCount: 0, warningCount: 0
+  })
+  assert.equal(await fs.readFile(path.join(cwd, 'ignored.js'), 'utf8'), source)
+  assert.equal(await fs.readFile(path.join(cwd, 'unrelated.js'), 'utf8'), source)
+})
+
+test('non-ignored glob inputs continue to lint selected files', async t => {
+  const cwd = await fixture(t)
+  await fs.writeFile(path.join(cwd, 'source.js'), "console.log('hello')\n")
+  const data = await lintFiles('*.js', { cwd })
+  assert.equal(data.results.length, 1)
+  assert.equal(data.errorCount, 0)
+})
+
 test('syntax errors and missing files fail rather than silently succeeding', async t => {
   const cwd = await fixture(t)
   await fs.writeFile(path.join(cwd, 'broken.js'), 'const =\n')

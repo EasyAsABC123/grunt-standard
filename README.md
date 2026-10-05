@@ -66,7 +66,7 @@ grunt.initConfig({
 
 - **Type:** `String`
 - **Default:** `process.cwd()`
-- **Action:** current working directory (default: process.cwd()) [Documentation](https://github.com/standard/standard#async-standardlintfilesfiles-opts).
+- **Action:** current working directory (default: process.cwd()); relative paths resolve from the process working directory. [Documentation](https://github.com/standard/standard#async-standardlintfilesfiles-opts).
 
 #### options.fix
 
@@ -114,6 +114,8 @@ grunt.initConfig({
   }
 })
 ```
+
+Files excluded by Standard ignore rules are skipped, including explicit Grunt file selections. Targets with no remaining files succeed without linting or formatting the rest of the project.
 
 ## Security
 
