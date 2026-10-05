@@ -49,6 +49,39 @@ codes. Async task tests should wait for actual completion rather than assume
 a fixed number of event-loop turns. Keep case inputs isolated and confirm
 configuration changes do not leak between calls.
 
+## Publishing
+
+`.github/workflows/publish.yml` publishes after **CI succeeds on `master` or
+`main`**. The workflow uses the exact tested commit, skips stale builds and
+versions already present on npm, and publishes only stable versions. To release,
+update the version in `package.json` and `package-lock.json`, merge the change,
+and wait for CI and the publishing workflow. Publishing a GitHub release is
+optional and does not itself trigger npm publication.
+
+The workflow checks the package, runs tests and audits, and transfers the
+packed tarball by immutable artifact ID to a clean publishing job. That job
+uses npm OIDC and provenance, with no npm token stored in GitHub. The GitHub
+`npm` environment permits `master` and `main` branches.
+
+Configure this trusted publisher in the package's npm settings:
+
+| Field | Value |
+| --- | --- |
+| Provider | GitHub Actions |
+| Organization or user | `EasyAsABC123` |
+| Repository | `grunt-standard` |
+| Workflow filename | `publish.yml` |
+| Environment name | `npm` |
+| Allowed action | Direct publishing (`npm publish`) |
+
+The filename and environment must match exactly. Configuring trust requires an
+npm maintainer login and npm's 2FA verification. Routine automated publishes
+use OIDC. See [npm's trusted-publishing documentation](https://docs.npmjs.com/trusted-publishers/).
+
+Manual workflow dispatch validates a selected `master` or `main` ref as a dry
+run. It never publishes. A failed registry lookup stops the workflow; only a
+confirmed missing version enables publishing.
+
 ## Code of Conduct
 
 ### Section 1: Purpose
