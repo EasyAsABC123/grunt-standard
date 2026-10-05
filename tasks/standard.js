@@ -1,39 +1,40 @@
 /**
  * grunt-standard
- * https://github.com/pdehaan/grunt-standard
+ * https://github.com/EasyAsABC123/grunt-standard
  *
  * Copyright (c) 2015 Peter deHaan
- * Licensed under the WTFPL license.
+ * Copyright (c) 2017 Justin Schuhmann
+ * Licensed under the MIT license.
  */
 
 'use strict'
 
-var reporter = require('../lib/reporter').reporter
-var lintFiles = require('../lib/linter').lintFiles
+const reporter = require('../lib/reporter').reporter
+const lintFiles = require('../lib/linter').lintFiles
+const escapeControls = require('../lib/output').escapeControls
 
 module.exports = function (grunt) {
   // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
+  // creation: https://gruntjs.com/creating-tasks
 
   grunt.registerMultiTask('standard', 'Grunt plugin for standard linter.', function () {
-    var done = this.async()
+    const done = this.async()
     // Merge task-specific and/or target-specific options with these defaults.
-    var options = this.options({
+    const options = this.options({
       ignore: [], // file globs to ignore (has sane defaults)
-      cwd: '', // current working directory (default: process.cwd())
+      cwd: process.cwd(), // current working directory
       fix: false, // automatically fix problems
       globals: [], // global variables to declare
       plugins: [], // eslint plugins
       envs: [], // eslint environment
-      parser: '' // js parser (e.g. babel-eslint)
+      parser: '' // js parser (e.g. @babel/eslint-parser)
     })
 
     grunt.log.subhead('Linting files...')
     lintFiles(this.filesSrc, options).then(function (data) {
-      var success = reporter(grunt, data)
-      done(success)
-    }).catch(function (err) {
-      grunt.fail.fatal(err.toString())
+      return reporter(grunt, data)
+    }).then(done, function (err) {
+      grunt.log.error(escapeControls(err))
       done(false)
     })
   })

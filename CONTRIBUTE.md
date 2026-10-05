@@ -2,7 +2,21 @@
 
 Contributions are greatly welcomed! I originally forked this and tweaked things to better serve my needs, and I have no doubt you have improvements too!
 
-When contributing, remember to _**be excellent to one another!**_ If in doubt, please refer to the Code of Conduct below, taken from [@todogroup/opencodeofconduct](https://github.com/todogroup/opencodeofconduct).
+When contributing, remember to _**be excellent to one another!**_ If in doubt, please refer to the Code of Conduct below, adapted from [@todogroup/opencodeofconduct](https://github.com/todogroup/opencodeofconduct). That repository is archived; the policy below remains this project's Code of Conduct.
+
+## Development
+
+Use Node.js 22 or newer and npm. Clone this repository, then run:
+
+```shell
+npm ci
+npm test
+npm audit
+```
+
+`npm ci` installs the versions recorded in `package-lock.json`. When updating dependencies, use `npm install` and include the updated lockfile in your pull request. GitHub Actions runs the checks on supported Node.js versions.
+
+Describe the problem and resulting behavior in your pull request, and include the checks you ran. Changes to linting behavior should include a focused regression test.
 
 ## Code of Conduct
 
@@ -77,7 +91,7 @@ Please follow the reporting process so that the maintainers can take action on y
 
 --------------------------------------------------------------------------------
 
-If you experience or witness misconduct, or have any other concerns about the conduct of members of this project, please report it by contacting us via email. All reports will be handled with discretion.
+If you experience or witness misconduct, or have any other concerns about the conduct of members of this project, please report it privately by emailing the maintainer at [jmschu02@gmail.com](mailto:jmschu02@gmail.com). All reports will be handled with discretion.
 
 We ask that your report include:
 
@@ -114,10 +128,10 @@ We created this code based on input from many existing codes as well as input fr
 
 - [Django](https://www.djangoproject.com/conduct/reporting/)
 - [Python](https://www.python.org/community/diversity/)
-- [Ubuntu](http://www.ubuntu.com/about/about-ubuntu/conduct)
-- [Contributor Covenant](http://contributor-covenant.org/)
-- [Geek Feminism](http://geekfeminism.org/about/code-of-conduct/)
-- [Citizen Code of Conduct](http://citizencodeofconduct.org/)
+- [Ubuntu](https://ubuntu.com/community/docs/ethos/code-of-conduct)
+- [Contributor Covenant](https://www.contributor-covenant.org/)
+- Geek Feminism (historical source credited by the archived TODO Group template)
+- Citizen Code of Conduct (historical source credited by the archived TODO Group template)
 
 We acknowledge the hard work put into creating these codes, and point you to them for consideration. We chose to create our own text to suit the needs we felt are applicable to our communities. You are welcome to take our text and use it, copy it, customize it as you see fit for your community. Kindly give us credit for inspiring what you create.
 
