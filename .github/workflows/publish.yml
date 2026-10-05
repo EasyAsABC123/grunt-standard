@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   validate:
-    if: github.repository == 'EasyAsABC123/grunt-standard' && (github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == 'EasyAsABC123/grunt-standard'))
+    if: github.repository == 'EasyAsABC123/grunt-standard' && (github.event_name == 'workflow_dispatch' || (github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == 'EasyAsABC123/grunt-standard'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:
