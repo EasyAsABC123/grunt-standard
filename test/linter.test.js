@@ -29,7 +29,7 @@ test('multi-file counts distinguish errors, warnings and clean files', async t =
     'clean.js': "console.log('hello')\n"
   })
   const data = await lintFiles(['error.js', 'warning.js', 'clean.js'], { cwd })
-  assert.equal(data.results.length, 3)
+  assert.deepEqual(data.results.map(file => path.relative(cwd, file.filePath)).sort(), ['clean.js', 'error.js', 'warning.js'])
   assert.equal(data.errorCount, 1)
   assert.equal(data.warningCount, 1)
   assert.deepEqual(messages(data).map(message => [message.ruleId, message.severity]).sort(), [
@@ -223,10 +223,69 @@ test('directory, glob and string targets lint only matching source files', async
   })
   for (const target of [['src'], ['src/**/*.js'], 'src/**/*.js']) {
     const data = await lintFiles(target, { cwd })
-    assert.equal(data.results.length, 2)
+    assert.deepEqual(data.results.map(file => path.relative(cwd, file.filePath)).sort(), ['src/a.js', 'src/nested/b.js'])
     assert.equal(data.errorCount, 0)
     assert.ok(data.results.every(file => file.filePath.startsWith(path.join(cwd, 'src') + path.sep)))
   }
+})
+
+test('failed fix runs do not partially modify valid targets when another target or parser fails', async t => {
+  const source = 'console.log("must remain dirty");\n'
+  const cwd = await project(t, { 'source.js': source })
+  const filename = path.join(cwd, 'source.js')
+  await assert.rejects(lintFiles(['source.js', 'missing.js'], { cwd, fix: true }), /No files matching/)
+  assert.equal(await fs.readFile(filename, 'utf8'), source)
+  await assert.rejects(lintFiles(['source.js'], {
+    cwd, fix: true, parser: 'missing-fix-isolation-parser'
+  }), /missing-fix-isolation-parser/)
+  assert.equal(await fs.readFile(filename, 'utf8'), source)
+})
+
+test('literal filenames containing glob syntax lint the exact file without expanding a neighbor', async t => {
+  const cwd = await project(t, {
+    'file[1].js': 'missingLiteralName()\n',
+    'file1.js': 'missingNeighborName()\n'
+  })
+  const data = await lintFiles(['file[1].js'], { cwd })
+  assert.deepEqual(data.results.map(file => path.basename(file.filePath)), ['file[1].js'])
+  assert.equal(data.errorCount, 1)
+  assert.deepEqual(messages(data).map(message => message.ruleId), ['no-undef'])
+  assert.match(messages(data)[0].message, /missingLiteralName/)
+  assert.doesNotMatch(messages(data)[0].message, /missingNeighborName/)
+})
+
+test('overlapping explicit and glob targets do not double-count diagnostics or alter unrelated files', async t => {
+  const untouched = 'console.log("untouched");\n'
+  const cwd = await project(t, {
+    'src/a.js': 'missingName()\n',
+    'src/b.js': "console.log('clean')\n",
+    'outside.js': untouched
+  })
+  const data = await lintFiles(['src/a.js', 'src/*.js', 'src/a.js'], { cwd, fix: true })
+  assert.deepEqual(data.results.map(file => path.relative(cwd, file.filePath)).sort(), ['src/a.js', 'src/b.js'])
+  assert.equal(data.errorCount, 1)
+  assert.deepEqual(messages(data).map(message => message.ruleId), ['no-undef'])
+  assert.equal(await fs.readFile(path.join(cwd, 'outside.js'), 'utf8'), untouched)
+})
+
+test('concurrent lint and fix calls keep independent project options and files', async t => {
+  const first = await project(t, { 'source.js': 'firstGlobal("first");\n' })
+  const secondSource = 'secondGlobal("second");\n'
+  const second = await project(t, { 'source.js': secondSource })
+  const [fixed, dirty] = await Promise.all([
+    lintFiles(['source.js'], { cwd: first, globals: ['firstGlobal'], fix: true }),
+    lintFiles(['source.js'], { cwd: second, globals: ['secondGlobal'], fix: false })
+  ])
+  assert.deepEqual(fixed.results.map(file => file.filePath), [path.join(first, 'source.js')])
+  assert.equal(fixed.errorCount, 0)
+  assert.deepEqual(dirty.results.map(file => file.filePath), [path.join(second, 'source.js')])
+  assert.ok(dirty.errorCount > 0)
+  assert.ok(messages(dirty).every(message => message.ruleId !== 'no-undef'))
+  assert.equal(await fs.readFile(path.join(first, 'source.js'), 'utf8'), "firstGlobal('first')\n")
+  assert.equal(await fs.readFile(path.join(second, 'source.js'), 'utf8'), secondSource)
+  const withoutGlobals = await lintFiles(['source.js'], { cwd: first })
+  assert.deepEqual(messages(withoutGlobals).map(message => message.ruleId), ['no-undef'])
+  assert.match(messages(withoutGlobals)[0].message, /firstGlobal/)
 })
 
 test('package source extensions include otherwise unmatched files in directories', async t => {

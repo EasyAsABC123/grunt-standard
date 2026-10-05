@@ -22,6 +22,8 @@ function node (script, args, cwd) {
     env: { ...process.env, NODE_PATH: '', NO_COLOR: '1', FORCE_COLOR: '0' }
   })
   if (result.error) throw result.error
+  assert.equal(result.signal, null, `Child terminated by ${result.signal}: ${result.stdout}${result.stderr}`)
+  assert.ok(Number.isInteger(result.status) && result.status >= 0, 'Child did not return a normal exit status')
   return { status: result.status, output: result.stdout + result.stderr, stdout: result.stdout }
 }
 
@@ -83,8 +85,9 @@ for (const release of ['3.2.0', '4.0.0']) {
   describe('installed npm consumer ' + release, () => {
     test('discovers task through loadNpmTasks, help and clean source', () => {
       const app = consumer(release, { 'source.js': "console.log('clean')\n" })
-      assert.equal(app.run().status, 0)
-      assert.match(app.run().output, /No Problems/)
+      const clean = app.run()
+      assert.equal(clean.status, 0, clean.output)
+      assert.match(clean.output, /No Problems/)
       const help = app.run('--help')
       assert.equal(help.status, 0)
       assert.match(help.output, /standard\s+Grunt plugin/)
@@ -94,7 +97,7 @@ for (const release of ['3.2.0', '4.0.0']) {
     test('dirty and syntax-error files fail with actionable diagnostics', () => {
       for (const source of ['console.log("dirty");\n', 'const =\n']) {
         const result = consumer(release, { 'source.js': source }).run()
-        assert.notEqual(result.status, 0)
+        assert.equal(result.status, 3, result.output)
         assert.match(result.output, /source.js/)
         assert.match(result.output, /line|Parsing error/)
       }
@@ -136,25 +139,38 @@ for (const release of ['3.2.0', '4.0.0']) {
       assert.match(result.output, /standard:second/)
     })
 
-    test('configured cwd resolves explicit absolute targets with spaces', () => {
-      const app = consumer(release, { 'nested dir/source.js': "console.log('cwd')\n" })
-      fs.writeFileSync(path.join(app.root, 'Gruntfile.js'), "module.exports = function (grunt) { grunt.initConfig({ standard: { options: { cwd: require('path').join(__dirname, 'nested dir') }, app: { src: [require('path').join(__dirname, 'nested dir/source.js')] } } }); grunt.loadNpmTasks('grunt-standard') }\n")
-      const result = app.run()
-      assert.equal(result.status, 0, result.output)
-    })
-
-    test('relative cwd works with absolute targets', () => {
-      const app = consumer(release, { 'nested dir/source.js': "console.log('relative')\n" })
-      fs.writeFileSync(path.join(app.root, 'Gruntfile.js'), "module.exports = function (grunt) { grunt.initConfig({ standard: { options: { cwd: 'nested dir' }, app: { src: [require('path').join(__dirname, 'nested dir/source.js')] } } }); grunt.loadNpmTasks('grunt-standard') }\n")
-      const result = app.run()
-      assert.equal(result.status, 0, result.output)
-    })
+    for (const relative of [false, true]) {
+      test((relative ? 'relative' : 'absolute') + ' cwd selects the intended file and verifies release-specific package configuration', () => {
+        const app = consumer(release, {
+          'nested dir/source.js': 'nestedGlobal("cwd");\n',
+          'nested dir/package.json': JSON.stringify({ standard: { globals: ['nestedGlobal'] } }),
+          'unrelated.js': 'console.log("untouched");\n'
+        })
+        function configure (fix) {
+          const cwd = relative ? "'nested dir'" : "require('path').join(__dirname, 'nested dir')"
+          fs.writeFileSync(path.join(app.root, 'Gruntfile.js'), 'module.exports = function (grunt) { grunt.initConfig({ standard: { options: { cwd: ' + cwd + ', fix: ' + fix + " }, app: { src: [require('path').join(__dirname, 'nested dir/source.js')] } } }); grunt.loadNpmTasks('grunt-standard') }\n")
+        }
+        configure(false)
+        const dirty = app.run('standard', '--verbose')
+        assert.equal(dirty.status, 3, dirty.output)
+        assert.match(dirty.output, /quotes|semi/)
+        if (release === '4.0.0') assert.doesNotMatch(dirty.output, /nestedGlobal.*not defined/)
+        else assert.match(dirty.output, /nestedGlobal.*not defined/)
+        assert.equal(app.read('nested dir/source.js'), 'nestedGlobal("cwd");\n')
+        configure(true)
+        const fixed = app.run()
+        assert.equal(fixed.status, release === '4.0.0' ? 0 : 3, fixed.output)
+        if (release === '3.2.0') assert.match(fixed.output, /nestedGlobal.*not defined/)
+        assert.equal(app.read('nested dir/source.js'), "nestedGlobal('cwd')\n")
+        assert.equal(app.read('unrelated.js'), 'console.log("untouched");\n')
+      })
+    }
 
     test('parser resolution errors fail and do not mutate selected files', () => {
       const source = "console.log('safe')\n"
       const app = consumer(release, { 'source.js': source }, { options: { parser: 'definitely-nonexistent-parser-fixture' }, app: { src: ['source.js'] } })
       const result = app.run()
-      assert.notEqual(result.status, 0)
+      assert.equal(result.status, 3, result.output)
       assert.match(result.output, /definitely-nonexistent-parser-fixture/)
       assert.equal(app.read('source.js'), source)
     })
