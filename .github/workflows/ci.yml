@@ -16,13 +16,16 @@ concurrency:
 
 jobs:
   test:
-    name: Node.js ${{ matrix.node }}
+    name: Node.js ${{ matrix.node }}${{ matrix.npm && format(' (npm {0})', matrix.npm) || '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
         node: [22, 24]
+        include:
+          - node: 24
+            npm: '12.2.0'
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -33,13 +36,16 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           package-manager-cache: false
+      - name: Install the publishing npm CLI
+        if: matrix.npm
+        run: npm install --global npm@${{ matrix.npm }} --ignore-scripts
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
       - name: Lint
         run: npm run lint
       - name: Unit tests and coverage
         run: npm run test:coverage
-      - name: Published 3.2.0 and packed 4.0.0 consumer integration
+      - name: Published 3.2.0 and packed candidate consumer integration
         run: npm run test:integration
       - name: Audit production dependencies
         run: npm audit --omit=dev
